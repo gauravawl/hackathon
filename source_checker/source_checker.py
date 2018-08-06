@@ -149,6 +149,7 @@ class SourceChecker(object):
                     else:
                         print d
                 print '\n'
+        return output
 
     def render_graph(self, domains):
         """renders graph output"""
