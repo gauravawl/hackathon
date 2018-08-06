@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from flask import request
 from source_checker.source_checker import SourceChecker
+import requests
 
 app = Flask(__name__)
 api = Api(app)
@@ -33,6 +34,11 @@ class Message(Resource):
 
         body = data['messages'][0]['body']
         chatId = data['messages'][0]['chatId']
+        fromMe = data['messages'][0]['fromMe']
+
+        if fromMe:
+            return 201
+
         language = 'english'
 
         #text = sys.argv[1]
@@ -46,6 +52,11 @@ class Message(Resource):
         sc.load_domains()
         output = sc.render_output(domains)
         sc.render_graph(domains)
+
+        if len(output["HIGH"]) != 0:
+            sendData = {"chatId": chatId, "body": "The given statement is " + str(output["HIGH"][0][0]) + " probability is "}
+            req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g', data=sendData)
+
 
         return output, 201
 
