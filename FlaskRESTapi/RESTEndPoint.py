@@ -1,70 +1,54 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
+from flask import request
+from source_checker.source_checker import SourceChecker
 
 app = Flask(__name__)
 api = Api(app)
 
-SERVER_NAME = "127.0.0.2"
-users = [
-    {
-        "name": "Nicholas",
-        "age": 42,
-        "occuptaion": "Network Engineer"
-    },
-    {
-        "name": "Elvin",
-        "age": 35,
-        "occuptaion": "Doctor"
-    }
-]
+# users = [
+#     {
+#         "name": "Nicholas",
+#         "age": 42,
+#         "occuptaion": "Network Engineer"
+#     },
+#     {
+#         "name": "Elvin",
+#         "age": 35,
+#         "occuptaion": "Doctor"
+#     }
+# ]
 
 
-class User(Resource):
-    def get(self, name):
-        for user in users:
-            if name == user["name"]:
-                return user, 200
-        return "User not found", 404
+class Message(Resource):
+    # def get(self, name):
+    #     for user in users:
+    #         if name == user["name"]:
+    #             return user, 200
+    #     return "User not found", 404
 
-    def post(self, name):
-        parser = reqparse.RequestParser()
-        parser.add_argument("age")
-        parser.add_argument("occupation")
-        args = parser.parse_args()
-        for user in users:
-            if name == user["name"]:
-                return "User with name {} already exists".format(name), 400
-        user = {
-            "name": name,
-            "age": args["age"],
-            "occupation": args["occupation"]
-        }
-        users.append(user)
-        return user, 201
+    def post(self):
 
-    def put(self, name):
-        parser = reqparse.RequestParser()
-        parser.add_argument("age")
-        parser.add_argument("occupation")
-        args = parser.parse_args()
-        for user in users:
-            if name == user["name"]:
-                user["age"] = args["age"]
-                user["occupation"] = args["occupation"]
-                return user, 200
-        user = {
-            "name": name,
-            "age": args["age"],
-            "occupation": args["occupation"]
-        }
-        users.append(user)
-        return user, 201
+        data = request.get_json()
 
-    def delete(self, name):
-        global users
-        users = [user for user in users if user["name"] != name]
-        return "{} is deleted".format(name), 200
+        body = data['messages'][0]['body']
+        chatId = data['messages'][0]['chatId']
+        language = 'english'
+
+        #text = sys.argv[1]
+        # try:
+        #     language = sys.argv[2]
+        # except IndexError:
+        #     language = 'english'
+        sc = SourceChecker(body, language)
+        queries = sc.get_queries()
+        domains = sc.get_urls(queries)
+        sc.load_domains()
+        output = sc.render_output(domains)
+        sc.render_graph(domains)
+
+        return output, 201
 
 
-api.add_resource(User, "/user/<string:name>")
-app.run(host='0.0.0.0', debug=True)
+api.add_resource(Message, "/webhook/")
+app.run(host="0.0.0.0", debug=True)
