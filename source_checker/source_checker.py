@@ -173,6 +173,15 @@ class SourceChecker(object):
                     else:
                         print d
                 print '\n'
+        if cred == None:
+            cred = 0
+
+        if cred <= 0.5:
+            output['RESULT'].append(('false', [int(cred*100)]))
+        else:
+            output['RESULT'].append(('true', [int(cred*100)]))
+
+        return output
 
     def render_graph(self, domains):
         """renders graph output"""

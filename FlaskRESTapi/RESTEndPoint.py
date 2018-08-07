@@ -3,6 +3,8 @@ from flask_restful import Api, Resource, reqparse
 from flask import request
 from source_checker.source_checker import SourceChecker
 import requests
+from collections import defaultdict
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,17 +28,23 @@ class Message(Resource):
         news = request.args.get('news')
         language = 'english'
         sc = SourceChecker(news, language)
-        queries = sc.get_queries()
-        domains = sc.get_urls(queries)
-        sc.load_domains()
-        output = sc.render_output(domains)
+        validity_check = sc.cleanup_text(news)
+        output = defaultdict(list)
+        if validity_check[0]:
+            queries = sc.get_queries()
+            domains = sc.get_urls(queries)
+            sc.load_domains()
+            output = sc.render_output(domains)
+            #sc.render_graph(domains)
+        else:
+            output["ERROR"] = validity_check[1]
 
-        output['RESULT'].append(('true',[50]))
         return output, 201
 
     def post(self):
 
         data = request.get_json()
+        output = []
 
         body = data['messages'][0]['body']
         chatId = data['messages'][0]['chatId']
@@ -53,15 +61,24 @@ class Message(Resource):
         # except IndexError:
         #     language = 'english'
         sc = SourceChecker(body, language)
-        queries = sc.get_queries()
-        domains = sc.get_urls(queries)
-        sc.load_domains()
-        output = sc.render_output(domains)
-        sc.render_graph(domains)
+        validity_check = sc.cleanup_text(body)
+        if validity_check[0]:
+            queries = sc.get_queries()
+            domains = sc.get_urls(queries)
+            sc.load_domains()
+            output = sc.render_output(domains)
+            #sc.render_graph(domains)
+            sendData = {"chatId": chatId,
+                        "body": "The given statement is " + str(output["RESULT"][0][0]) + " and probability is " + str(output["RESULT"][0][0][0]) + "%"}
+            req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
+                                data=sendData)
+        else:
+            print validity_check[1]
+            sendData = {"chatId": chatId,
+                        "body": validity_check[1]}
+            req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
+                                data=sendData)
 
-        if len(output["HIGH"]) != 0:
-            sendData = {"chatId": chatId, "body": "The given statement is " + str(output["HIGH"][0][0]) + " probability is "}
-            req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g', data=sendData)
 
 
         return output, 201
