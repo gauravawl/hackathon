@@ -16,6 +16,8 @@ from nltk import ne_chunk, pos_tag, word_tokenize
 from pattern.graph import Graph
 from itertools import izip
 import sys
+sys.path.append('../SensationalismClassifier/')
+from SensationalismClassifier.SensationalismClassifier import *
 
 class SourceChecker(object):
 
@@ -238,15 +240,30 @@ class SourceChecker(object):
         else:
             return [True, inputData]
 
+    def getSensationalData(self, text):
+        model_path = '../SensationalismClassifier/trained_model.pkl'
+        clf = SensationalismClassifier(train_data=None, model=model_path,
+                                       dump=False, debug=False)
+        firstFive = ""
+        token = text.split()[:5]
+        for words in token:
+            firstFive = firstFive + words + " "
+        myList = [[firstFive, text]]
+        res = clf.classify(myList)
+        list = res[0]
+        # returns 1 if the input is categorized as sensattokenionalist, 0 if not.
+        return list[2]
 
 def main():
-
     text = sys.argv[1]
     try:
         language = sys.argv[2]
     except IndexError:
         language = 'english'
     sc = SourceChecker(text, language)
+
+    sensational = sc.getSensationalData(text)
+    print sensational
     validity_check = sc.cleanup_text(text)
     if validity_check[0]:
         queries = sc.get_queries()
