@@ -11,7 +11,7 @@ export class AppComponent {
   title = 'Fake news Detection';
   result = '';
   probability = '';
-  high = [];
+  high = new Array();
   input = {
     newsText: ""
   };
