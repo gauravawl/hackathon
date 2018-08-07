@@ -71,7 +71,7 @@ class Message(Resource):
             output = sc.render_output(domains)
             #sc.render_graph(domains)
             sendData = {"chatId": chatId,
-                        "body": "The given statement is " + str(output["RESULT"][0][0]) + " and probability is " + str(output["RESULT"][0][0][0]) + "%"}
+                        "body": "The given statement seems " + str(output["RESULT"][0][0]) + " because probability is " + str(output["RESULT"][0][1][0]) + "%"}
             req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
                                 data=sendData)
         else:
