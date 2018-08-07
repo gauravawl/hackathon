@@ -22,11 +22,16 @@ api = Api(app)
 
 
 class Message(Resource):
-    # def get(self, name):
-    #     for user in users:
-    #         if name == user["name"]:
-    #             return user, 200
-    #     return "User not found", 404
+    def get(self):
+        news = request.args.get('news')
+        language = 'english'
+        sc = SourceChecker(news, language)
+        queries = sc.get_queries()
+        domains = sc.get_urls(queries)
+        sc.load_domains()
+        output = sc.render_output(domains)
+
+        return output, 201
 
     def post(self):
 
