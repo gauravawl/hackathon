@@ -4,10 +4,12 @@ from flask import request
 from source_checker.source_checker import SourceChecker
 import requests
 from collections import defaultdict
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 # users = [
 #     {
