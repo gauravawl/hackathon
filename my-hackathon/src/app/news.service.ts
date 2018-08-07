@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class NewsService {
 
-  private result;
+  result="";
 
   
   constructor(private http: Http) { }
@@ -15,8 +15,8 @@ export class NewsService {
 
   getResult (news) {
     console.log(news);
-    var url = `${"http://ec2-13-127-133-136.ap-south-1.compute.amazonaws.com:5000/webhook?news"}=${news}`;
-    return this.http.get(url).pipe(map(result => this.result = result.json().data));
+    var url = `${"http://13.127.133.136:5000/webhook?news"}=${news}`;
+    return this.http.get(url).pipe(map(result => this.result = result.json()));
   }
 
 }
