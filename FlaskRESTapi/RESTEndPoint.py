@@ -37,6 +37,8 @@ class Message(Resource):
             domains = sc.get_urls(queries)
             sc.load_domains()
             output = sc.render_output(domains)
+            sensational = sc.getSensationalData(news)
+            output["SENS"] = sensational
             #sc.render_graph(domains)
         else:
             output["ERROR"] = validity_check[1]
