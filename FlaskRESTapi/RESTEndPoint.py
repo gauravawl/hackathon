@@ -31,6 +31,7 @@ class Message(Resource):
         sc.load_domains()
         output = sc.render_output(domains)
 
+        output['RESULT'].append(('true',[50]))
         return output, 201
 
     def post(self):
