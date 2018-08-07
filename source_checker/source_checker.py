@@ -28,6 +28,7 @@ class SourceChecker(object):
         self.cat_dict = defaultdict(list)
         key = ''
         self.engine = Google(license=key, throttle=0.5, language=None)
+        self.cat_weightage_dict = {'imposter site' : 0.2 , 'fake news' : 0.0 , 'parody site' : 0.0 , 'some fake stories' : 0.0 , 'conspiracy' : 0.4 , 'fake' : 0.0 , 'rumor' : 0.2 , 'unreliable' : 0.3 , 'reliable' : 0.9 , 'bias' : 0.7 , 'clickbait' : 0.3 , 'satire' : 0.0 , 'junksci' : 0.3 , 'political' : 0.8 , 'hate' : 0.3 , 'blog' : 0.5 , 'satirical' : 0.1 , 'unrealiable' : 0.5 , 'questionable' : 0.4 , 'least_biased' : 1.0 , 'pseudoscience' : 0.5 , 'right_center' : 0.8 , 'pro_science' : 0.8 , 'left_center' : 0.8 , 'right' : 0.8 , 'left' : 0.8}
 
     def get_queries(self):
 
@@ -139,6 +140,29 @@ class SourceChecker(object):
             elif overlap >= 0.6:
                 output['HIGH'].append((d, d_cats))
         degrees = ['HIGH', 'SOME', 'MINIMAL']
+        score1 = {}
+        for deg in degrees:
+            score2 = 0
+            len2 = 0
+            if output[deg]:
+                for d, cats in sorted(output[deg]):
+                    if cats:
+                        score3 = 0.0
+                        len2 += 1
+                        len3 = len(cats)
+                        for cat in cats:
+                            score3 += self.cat_weightage_dict[cat]
+                        score3 /= len3
+                        score2 += score3
+                    else:
+                        continue
+            if len2 != 0:
+                score2 /= len2
+            score1[deg] = score2
+        print 'score is'
+        cred = (0.5 * score1['HIGH'] + 0.3 * score1['SOME'] + 0.2 * score1['MINIMAL'])
+        print 'credibility score is '
+        print cred
         print '\n'
         for deg in degrees:
             if output[deg]:
@@ -149,7 +173,6 @@ class SourceChecker(object):
                     else:
                         print d
                 print '\n'
-        return output
 
     def render_graph(self, domains):
         """renders graph output"""
@@ -188,6 +211,25 @@ class SourceChecker(object):
         path = 'graph'
         g.export(path, encoding='utf-8', distance = 6, directed = False, width = 1400, height = 900)
 
+    def cleanup_text(self, inputData):
+        inputString = re.sub(r'[^\w\s]', "", inputData).strip().lower()
+        if re.match(r'^(hello|hi|hey)$', inputString):
+            return [False, "Hello. Please enter something useful!"]
+        elif re.match(
+                r'^(how\s+are\s+you(\s+doing)?|hows\s+it\s+going|hows\s+everything|how\s+are\s+things|hows\s+life)$',
+                inputString):
+            return [False, "Good. Please enter something useful!"]
+        elif re.match(r'^(whats\s+up|whats\s+new|whats\s+going\s+on|s+up|whaz+up)$', inputString):
+            return [False, "Nothing. Please enter something useful!"]
+        elif re.match(r'^good\s+(morning|afternoon|evening|night)$', inputString):
+            return [False, re.findall(r'^(good\s+(morning|afternoon|evening|night))$', inputString)[0][
+                0].upper() + "! Please enter something useful!"]
+        elif len(inputString.split()) < 8:
+            return [False, "Please make sure the text contains at least 8 words"]
+        else:
+            return [True, inputData]
+
+
 def main():
 
     text = sys.argv[1]
@@ -196,12 +238,15 @@ def main():
     except IndexError:
         language = 'english'
     sc = SourceChecker(text, language)
-    queries = sc.get_queries()
-    domains = sc.get_urls(queries)
-    sc.load_domains()
-    sc.render_output(domains)
-    sc.render_graph(domains)
-
+    validity_check = sc.cleanup_text(text)
+    if validity_check[0]:
+        queries = sc.get_queries()
+        domains = sc.get_urls(queries)
+        sc.load_domains()
+        sc.render_output(domains)
+        sc.render_graph(domains)
+    else:
+        print validity_check[1]
 
 if __name__ == "__main__":
     main()
