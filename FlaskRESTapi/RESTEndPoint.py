@@ -5,6 +5,8 @@ from source_checker.source_checker import SourceChecker
 import requests
 from collections import defaultdict
 from flask_cors import CORS
+import sys
+sys.path.append('../SensationalismClassifier/')
 
 
 app = Flask(__name__)
