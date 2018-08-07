@@ -13,7 +13,8 @@ export class NewsService {
 
   getResult (news) {
     console.log(news);
-    return this.http.get('/news').map(result => this.result = result.json().data);
+    var url = `${"http://ec2-13-127-133-136.ap-south-1.compute.amazonaws.com:5000/webhook?news"}=${news}`;
+    return this.http.get(url).map(result => this.result = result.json().data);
   }
 
 }
