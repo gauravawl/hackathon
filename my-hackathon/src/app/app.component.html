@@ -15,12 +15,32 @@
           <button style="width:25%" class="btn btn-info btn-lg btn-block" (click)="search()">Search</button>
       </div>
   </form>
-  <div class="container " id="content">
+  <div class="container " id="content" *ngIf="outputFlag">
     <div class="row h-100 mt-5">
         <main class="col-md-6">
-            <h1>Content...</h1>
+            <h1>This news is {{result}} and probability is {{probability}}%</h1>
         </main>
     </div>
+  </div>
+  <div class="container" *ngIf="high.length() > 0">
+    <p>High Overlap:</p>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th>Labels</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor= "let item of high">
+          <td>{{item[0]}}</td>
+          <td>
+            <span *ngFor= "let lables of item[0]">{{lables}}, </span>
+          </td>
+        </tr>
+       
+      </tbody>
+    </table>
   </div>
 </div>
 
