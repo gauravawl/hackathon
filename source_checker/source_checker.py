@@ -28,7 +28,7 @@ class SourceChecker(object):
         self.text = text
         self.language = language
         self.cat_dict = defaultdict(list)
-        key = 'AIzaSyCkgPGGnlbPUtFk6bzYLopjr-9izyTGb9k'
+        key = ''
         self.engine = Google(license=key, throttle=0.5, language=None)
         self.cat_weightage_dict = {'imposter site' : 0.2 , 'fake news' : 0.0 , 'parody site' : 0.0 , 'some fake stories' : 0.0 , 'conspiracy' : 0.4 , 'fake' : 0.0 , 'rumor' : 0.2 , 'unreliable' : 0.3 , 'reliable' : 0.9 , 'bias' : 0.7 , 'clickbait' : 0.3 , 'satire' : 0.0 , 'junksci' : 0.3 , 'political' : 0.8 , 'hate' : 0.3 , 'blog' : 0.5 , 'satirical' : 0.1 , 'unrealiable' : 0.3 , 'questionable' : 0.4 , 'least_biased' : 1.0 , 'pseudoscience' : 0.5 , 'right_center' : 0.8 , 'pro_science' : 0.8 , 'left_center' : 0.8 , 'right' : 0.8 , 'left' : 0.8, 'biased' : 0.8, 'state' : 0.5}
 

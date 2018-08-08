@@ -56,7 +56,7 @@ class Message(Resource):
     def post(self):
 
         data = request.get_json()
-        output = []
+        output = defaultdict(list)
 
         body = data['messages'][0]['body']
         chatId = data['messages'][0]['chatId']
