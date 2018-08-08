@@ -5,6 +5,10 @@ import { Http } from '@angular/http';
 
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+
+import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -25,13 +29,15 @@ export class AppComponent {
   sens = '';
   error = '';
 
-  constructor(private newsService: NewsService, private http: Http) {
+  constructor(private newsService: NewsService, private http: Http,  private spinnerService: Ng4LoadingSpinnerService) {
   }
 
 
   search() {
+    this.spinnerService.show();
     this.newsService.getResult(this.input.newsText).subscribe(response => {
       console.log(response);
+      this.spinnerService.hide();
 
       if (response["ERROR"]) {
         this.error = response["ERROR"];

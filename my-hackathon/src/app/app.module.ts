@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { NewsService } from './news.service';
+import { Ng4LoadingSpinnerModule } from 'ng4-loading-spinner';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { NewsService } from './news.service';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    Ng4LoadingSpinnerModule.forRoot()
   ],
   providers: [NewsService],
   bootstrap: [AppComponent]
