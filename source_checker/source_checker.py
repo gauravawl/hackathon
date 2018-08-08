@@ -228,15 +228,14 @@ def main():
     except IndexError:
         language = 'english'
     sc = SourceChecker(text, language)
-
-    sensational = sc.getSensationalData(text)
-    print sensational
     validity_check = sc.cleanup_text(text)
     if validity_check[0]:
         queries = sc.get_queries()
         domains = sc.get_urls(queries)
         sc.load_domains()
         sc.render_output(domains)
+        sensational = sc.getSensationalData(text)
+        print sensational
     else:
         print validity_check[1]
 

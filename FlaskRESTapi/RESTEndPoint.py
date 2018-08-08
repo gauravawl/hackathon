@@ -32,19 +32,24 @@ class Message(Resource):
     def get(self):
         news = request.args.get('news')
         language = 'english'
-        sc = SourceChecker(news, language)
-        validity_check = sc.cleanup_text(news)
-        output = defaultdict(list)
-        if validity_check[0]:
-            queries = sc.get_queries()
-            domains = sc.get_urls(queries)
-            sc.load_domains()
-            output = sc.render_output(domains)
-            sensational = sc.getSensationalData(news)
-            output["SENS"] = sensational
-            #sc.render_graph(domains)
-        else:
-            output["ERROR"] = validity_check[1]
+        try:
+            sc = SourceChecker(news, language)
+            validity_check = sc.cleanup_text(news)
+            output = defaultdict(list)
+            if validity_check[0]:
+                queries = sc.get_queries()
+                domains = sc.get_urls(queries)
+                sc.load_domains()
+                output = sc.render_output(domains)
+                sensational = sc.getSensationalData(news)
+                output["SENS"] = sensational
+                #sc.render_graph(domains)
+            else:
+                output["ERROR"] = validity_check[1]
+        except Exception as e:
+            print e
+            output["ERROR"] = e.message
+
 
         return output, 201
 
@@ -67,24 +72,34 @@ class Message(Resource):
         #     language = sys.argv[2]
         # except IndexError:
         #     language = 'english'
-        sc = SourceChecker(body, language)
-        validity_check = sc.cleanup_text(body)
-        if validity_check[0]:
-            queries = sc.get_queries()
-            domains = sc.get_urls(queries)
-            sc.load_domains()
-            output = sc.render_output(domains)
-            #sc.render_graph(domains)
+        try:
+            sc = SourceChecker(body, language)
+            validity_check = sc.cleanup_text(body)
+            if validity_check[0]:
+                queries = sc.get_queries()
+                domains = sc.get_urls(queries)
+                sc.load_domains()
+                output = sc.render_output(domains)
+                #sc.render_graph(domains)
+                sendData = {"chatId": chatId,
+                            "body": "The given statement seems " + str(output["RESULT"][0][0]) + " because probability is " + str(output["RESULT"][0][1][0]) + "%"}
+                req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
+                                    data=sendData)
+            else:
+                print validity_check[1]
+                output["ERROR"] = validity_check[1]
+                sendData = {"chatId": chatId,
+                            "body": validity_check[1]}
+                req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
+                                    data=sendData)
+        except Exception as e:
+            print e
+            output["ERROR"] = e.message
             sendData = {"chatId": chatId,
-                        "body": "The given statement seems " + str(output["RESULT"][0][0]) + " because probability is " + str(output["RESULT"][0][1][0]) + "%"}
+                        "body": "Something went wrong, please try after some time."}
             req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
                                 data=sendData)
-        else:
-            print validity_check[1]
-            sendData = {"chatId": chatId,
-                        "body": validity_check[1]}
-            req = requests.post('https://eu11.chat-api.com/instance8520/sendMessage?token=zt36p9ciphk2xx1g',
-                                data=sendData)
+
 
 
 
