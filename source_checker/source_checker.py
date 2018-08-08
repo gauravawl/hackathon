@@ -17,7 +17,7 @@ from pattern.graph import Graph
 from itertools import izip
 import sys
 sys.path.append('../SensationalismClassifier/')
-#from SensationalismClassifier.SensationalismClassifier import *
+from SensationalismClassifier.SensationalismClassifier import *
 
 class SourceChecker(object):
 
@@ -229,8 +229,8 @@ def main():
         language = 'english'
     sc = SourceChecker(text, language)
 
-    #sensational = sc.getSensationalData(text)
-    #print sensational
+    sensational = sc.getSensationalData(text)
+    print sensational
     validity_check = sc.cleanup_text(text)
     if validity_check[0]:
         queries = sc.get_queries()
