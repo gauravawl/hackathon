@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = "Masha Ivenskaya"
+
 from pattern.en import ngrams
 from pattern.web import Google, SEARCH
 from pattern.db import Datasheet
@@ -17,7 +17,7 @@ from pattern.graph import Graph
 from itertools import izip
 import sys
 sys.path.append('../SensationalismClassifier/')
-from SensationalismClassifier.SensationalismClassifier import *
+#from SensationalismClassifier.SensationalismClassifier import *
 
 class SourceChecker(object):
 
@@ -28,7 +28,7 @@ class SourceChecker(object):
         self.text = text
         self.language = language
         self.cat_dict = defaultdict(list)
-        key = 'AIzaSyAWd8DRmyj_feeOl7_48ml9Bm0jpRS-1Ig'
+        key = 'AIzaSyCkgPGGnlbPUtFk6bzYLopjr-9izyTGb9k'
         self.engine = Google(license=key, throttle=0.5, language=None)
         self.cat_weightage_dict = {'imposter site' : 0.2 , 'fake news' : 0.0 , 'parody site' : 0.0 , 'some fake stories' : 0.0 , 'conspiracy' : 0.4 , 'fake' : 0.0 , 'rumor' : 0.2 , 'unreliable' : 0.3 , 'reliable' : 0.9 , 'bias' : 0.7 , 'clickbait' : 0.3 , 'satire' : 0.0 , 'junksci' : 0.3 , 'political' : 0.8 , 'hate' : 0.3 , 'blog' : 0.5 , 'satirical' : 0.1 , 'unrealiable' : 0.3 , 'questionable' : 0.4 , 'least_biased' : 1.0 , 'pseudoscience' : 0.5 , 'right_center' : 0.8 , 'pro_science' : 0.8 , 'left_center' : 0.8 , 'right' : 0.8 , 'left' : 0.8, 'biased' : 0.8, 'state' : 0.5}
 
@@ -152,16 +152,16 @@ class SourceChecker(object):
             len2 = 0
             if output[deg]:
                 for d, cats in sorted(output[deg]):
-                    score3 = 0.0
-                    len2 += 1
-                    len3 = len(cats)
                     if cats:
+                        score3 = 0.0
+                        len2 += 1
+                        len3 = len(cats)
                         for cat in cats:
                             score3 += self.cat_weightage_dict[cat]
                         score3 /= len3
-                    elif score3 == 0.0:
-                        score3 = 0.5
-                    score2 += score3
+                        score2 += score3
+                    else:
+                        continue
             if len2 != 0:
                 score2 /= len2
             score1[deg] = score2
@@ -188,43 +188,6 @@ class SourceChecker(object):
             output['RESULT'].append(('true', [int(cred*100)]))
 
         return output
-
-    def render_graph(self, domains):
-        """renders graph output"""
-        g = Graph()
-        for domain in domains.keys():
-            if domain in self.cat_dict:
-                categories = self.cat_dict[domain]
-                stroke =  (0,0,0,0.5)
-                if 'right' in categories:
-                    stroke = (255, 0, 0, 1)
-                elif 'right_center' in categories:
-                    stroke = (255, 0, 0, .5)
-                if 'left' in categories:
-                    stroke = (0,0,255, 1)
-                elif 'left_center' in categories:
-                    stroke = (0,0,255, .5)
-                if 'least_biased' in categories:
-                    stroke = (0,255,0, 1)
-
-            fill = (128,128,0, 0.1)
-            dub_cats = ['fake', 'questionable', 'clickbait', 'unreliable', 'conspiracy']
-            score = len([c for c in categories if c in dub_cats])
-            if score:
-                fill = (0,0,0,float(score)/5)
-            g.add_node(domain, radius = len(domains[domain])*6, stroke = stroke, strokewidth = 6, fill = fill, font_size = 30)
-
-        pairs = self.pairwise(domains.keys())
-        for x, y in pairs:
-            x_queries = set(domains[x])
-            y_queries = set(domains[y])
-            intersection = len(x_queries.intersection(y_queries))
-            if intersection > 0:
-                max_rad = max(len(domains[x]), len(domains[y]))+1000
-                g.add_edge(x, y, length = max_rad, strokewidth = intersection)
-
-        path = 'graph'
-        g.export(path, encoding='utf-8', distance = 6, directed = False, width = 1400, height = 900)
 
     def cleanup_text(self, inputData):
         inputString = re.sub(r'[^\w\s]', "", inputData).strip().lower()
@@ -266,15 +229,14 @@ def main():
         language = 'english'
     sc = SourceChecker(text, language)
 
-    sensational = sc.getSensationalData(text)
-    print sensational
+    #sensational = sc.getSensationalData(text)
+    #print sensational
     validity_check = sc.cleanup_text(text)
     if validity_check[0]:
         queries = sc.get_queries()
         domains = sc.get_urls(queries)
         sc.load_domains()
         sc.render_output(domains)
-        sc.render_graph(domains)
     else:
         print validity_check[1]
 
