@@ -7,6 +7,7 @@ from collections import defaultdict
 from flask_cors import CORS
 import sys
 sys.path.append('../SensationalismClassifier/')
+from SensationalismClassifier.SensationalismClassifier import *
 
 
 app = Flask(__name__)
